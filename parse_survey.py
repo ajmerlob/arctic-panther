@@ -52,7 +52,7 @@ class Parser:
                             exit
                     current_user = User(user_id)
                     self.users.add(current_user)
-                elif "What is your full, real name" in line:
+                elif "what you put on Meetup" in line:
                     current_user.name = line[line.find(")")+1:].strip()
         #        elif "Go change your DS ProD Meetup photo" in line:
         #            self.users[user_id]["photo"] = ... #TODO:hit API to grab pic, to send to match?

@@ -1,3 +1,4 @@
+import main
 import math
 import sys
 import os.path
@@ -25,13 +26,13 @@ class Main:
         self.users = set ([])
         self.user_photos = {}
         self.survey_data_filename = "c:/users/aaron/desktop/survey_data.txt"
+        self.meetup_client = meetup.Meetup(conf.api_key)
 
     def get_weekly_opt_ins(self,group_id):
         arg_dict = {}
         arg_dict["group_id"] = group_id
 
-        m = meetup.Meetup(conf.api_key)
-        events = m.get_events(**arg_dict).results
+        events = self.meetup_client.get_events(**arg_dict).results
         opt_ins = set([])
         for x in events:
             if not "Pair Data Science" in x.name:
@@ -39,7 +40,7 @@ class Main:
                 continue
             else:
                 print "Calculating Pairs -", x.name
-            rsvps = x.get_rsvps(m)
+            rsvps = x.get_rsvps(self.meetup_client)
             try:
                 for rsvp in rsvps.results:
                     opt_ins.add(rsvp.member["member_id"])
