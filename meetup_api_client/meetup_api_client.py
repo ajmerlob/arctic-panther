@@ -309,6 +309,7 @@ class Event(API_Item):
 
     def get_rsvps(self, apiclient, **extraparams):
         extraparams['event_id'] = self.id
+        extraparams['rsvp'] = "yes"
         return apiclient.get_rsvps(**extraparams)
 
 class Rsvp(API_Item):

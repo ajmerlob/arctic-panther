@@ -7,6 +7,7 @@ class Parser:
         self.parse()
 
     def get_users(self):
+        print "Total Num Users:", len(self.users)
         return self.users
 
     def parse(self):
@@ -29,6 +30,8 @@ class Parser:
             current_user = None
             for line in survey_data:
                 line = line.strip()
+                if len(line) == 0:
+                    continue
 
                 if line[:5] == "PAGE ":
                     continue
