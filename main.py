@@ -36,7 +36,7 @@ class Main:
         arg_dict["group_id"] = self.group_id
 
         events = self.meetup_client.get_events(**arg_dict).results
-        opt_ins = set([])
+        opt_ins = {}
         for x in events:
             if not "Pair Data Science" in x.name:
                 print "Skipped",x.name
@@ -46,7 +46,7 @@ class Main:
             rsvps = x.get_rsvps(self.meetup_client)
             try:
                 for rsvp in rsvps.results:
-                    opt_ins.add(rsvp.member["member_id"])
+                    opt_ins[rsvp.member["member_id"]] = rsvp.member["name"]
                     try:
                         self.user_photos[rsvp.member["member_id"]] = rsvp.member_photo["highres_link"]
                     except:
@@ -112,17 +112,18 @@ class Main:
 
     def send_missing_survey_messages(self,debug=True):
         msg_client = Message()
-        msg = Text(self.group_id).take_survey
+        msg_no_name = Text(self.group_id).take_survey
 
         opt_ins = self.get_weekly_opt_ins()
         user_ids = [u.user_id for u in self.users]
 
-        for opt_in in [str(o) for o in opt_ins]:
-            if opt_in not in user_ids:
+        for opt_in in opt_ins:
+            if str(opt_in) not in user_ids:
+                msg = msg_no_name % (opt_ins[opt_in])
                 if debug:
-                    print opt_in,msg
+                    print msg
                 else:
-                    print msg_client.send(msg,opt_in)
+                    print msg_client.send(msg,str(opt_in))
                 
 
 
