@@ -8,6 +8,7 @@ from parse_survey import Parser
 from analyze import Analyze
 from simulator import Simulator
 from messages import Message
+from text import Text
 
 import meetup_api_client as meetup
 
@@ -23,15 +24,16 @@ if conf.api_key == "" or conf.oauth_key == "" or conf.oauth_secret == "":
 class Main:
     conf = Config()
 
-    def __init__(self):
+    def __init__(self, group_id):
+        self.group_id = group_id
         self.users = set ([])
         self.user_photos = {}
         self.survey_data_filename = "c:/users/aaron/desktop/survey_data.txt"
         self.meetup_client = meetup.Meetup(conf.api_key)
 
-    def get_weekly_opt_ins(self,group_id):
+    def get_weekly_opt_ins(self):
         arg_dict = {}
-        arg_dict["group_id"] = group_id
+        arg_dict["group_id"] = self.group_id
 
         events = self.meetup_client.get_events(**arg_dict).results
         opt_ins = set([])
@@ -54,7 +56,7 @@ class Main:
 
         return opt_ins
 
-    def get_users(self,group_id):
+    def get_users(self):
         ## Read in the survey data or simulate new data
         if os.path.isfile(self.survey_data_filename):
             parser = Parser(self.survey_data_filename)
@@ -74,7 +76,7 @@ class Main:
 
             ## Grabs the list of people interested in being matched this week
             ## From the Meetup event API
-            opt_ins = self.get_weekly_opt_ins(group_id)
+            opt_ins = self.get_weekly_opt_ins()
 
             ## Filter to just opted-in users
             self.users = set([i for i in all_users if int(i.user_id) in opt_ins])
@@ -108,14 +110,28 @@ class Main:
     #            print "No Matches for:", user.name
     #        print user.user_id,user.name
 
-def test_messages():
-    msg_client = Message()
-    user_id = 87429312
-    msg_client.send("Seems to be working",user_id)
+    def send_missing_survey_messages(self,debug=True):
+        msg_client = Message()
+        msg = Text(self.group_id).take_survey
+
+        opt_ins = self.get_weekly_opt_ins()
+        user_ids = [u.user_id for u in self.users]
+
+        for opt_in in [str(o) for o in opt_ins]:
+            if opt_in not in user_ids:
+                if debug:
+                    print opt_in,msg
+                else:
+                    print msg_client.send(msg,opt_in)
+                
+
 
 if __name__ == "__main__":
-#    for group_id in Config.groups:
-#        main = Main()
-#        main.get_users(group_id)
-#        main.analyze_pairs()
-    test_messages()
+    spam_missing_surveys = True
+    
+    for group_id in Config.groups:
+        main = Main(group_id)
+        main.get_users()
+        if spam_missing_surveys:
+            main.send_missing_survey_messages()
+        main.analyze_pairs()
