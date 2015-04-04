@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup as soup
 import random
+import os
+from config import Config
 
 class Message:
 
@@ -20,11 +22,13 @@ class Message:
     userAgent = False
 
     #authFile should be a file where your username and password are stored, separated by a newline
-    def __init__(self, authFile="/tmp/meetup.auth"):
-        if not os.path.isfile(authFile):
-            raise Exception('authFile must exist!')
+    def __init__(self):
+        conf = Config()
+        if conf.username == "" or conf.password == "":
+            raise Exception('Config username and password must exist!')
 
-        self.authFile = authFile
+        self.username = conf.username
+        self.password = conf.password
         self.userAgent = random.choice(self.userAgents)
         self.session = requests.session()
         self.token = self.get_auth_token()
@@ -62,7 +66,7 @@ class Message:
 
         url = self.endpoint + '/' + self.authEndpoint
 
-        auth = open(self.authFile).read().split('\n')
+        auth = [self.username,self.password]
 
         data = 'email='+auth[0]+'&password='+auth[1]+'&token='+self.token+'&op=login'
 
@@ -73,6 +77,6 @@ class Message:
     
     def send(self, text, memberid):
         url = self.endpoint + '/' + self.newMessageEndpoint
-        data = "title=&text="+text+"&member="+memberid+"&conversation_kind=one_one&photo_host=secure"
+        data = "title=&text=%s&member=%s&conversation_kind=one_one&photo_host=secure" % (text,memberid)
         res = self.session.post(url, headers=self.get_headers('https://secure.meetup.com/messages/?new_convo=true'), data=data, allow_redirects=False)
         return res.status_code == 200

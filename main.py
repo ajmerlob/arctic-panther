@@ -7,6 +7,7 @@ from config import Config
 from parse_survey import Parser
 from analyze import Analyze
 from simulator import Simulator
+from messages import Message
 
 import meetup_api_client as meetup
 
@@ -107,8 +108,14 @@ class Main:
     #            print "No Matches for:", user.name
     #        print user.user_id,user.name
 
+def test_messages():
+    msg_client = Message()
+    user_id = 87429312
+    msg_client.send("Seems to be working",user_id)
+
 if __name__ == "__main__":
-    for group_id in Config.groups:
-        main = Main()
-        main.get_users(group_id)
-        main.analyze_pairs()
+#    for group_id in Config.groups:
+#        main = Main()
+#        main.get_users(group_id)
+#        main.analyze_pairs()
+    test_messages()
