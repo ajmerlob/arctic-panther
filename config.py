@@ -4,3 +4,5 @@ class Config:
         self.api_key = ""
         self.oauth_key = ""
         self.oauth_secret = ""
+        self.username = ""
+        self.password = ""
