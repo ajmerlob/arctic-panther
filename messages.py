@@ -7,18 +7,13 @@ from config import Config
 class Message:
 
     endpoint = 'https://secure.meetup.com'
-
     authEndpoint = 'login'
-
     newMessageEndpoint = 'muapi/self/conversations/'
-
     session = False
-
     token = False
 
     #sourced from https://techblog.willshouse.com/2012/01/03/most-common-user-agents/
     userAgents = ['Mozilla/5.0 (Windows NT 6.1; WOW64; rv:36.0) Gecko/20100101 Firefox/36.0', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3 Safari/600.3.18', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36']
-
     userAgent = False
 
     #authFile should be a file where your username and password are stored, separated by a newline
@@ -63,13 +58,9 @@ class Message:
 
     def login(self):
         headers = self.get_headers('https://secure.meetup.com/login/')
-
         url = self.endpoint + '/' + self.authEndpoint
-
         auth = [self.username,self.password]
-
         data = 'email='+auth[0]+'&password='+auth[1]+'&token='+self.token+'&op=login'
-
         res = self.session.post(url, headers=headers, data=data, allow_redirects=False)
 
         return res.status_code == 302
@@ -78,5 +69,13 @@ class Message:
     def send(self, text, memberid):
         url = self.endpoint + '/' + self.newMessageEndpoint
         data = "title=&text=%s&member=%s&conversation_kind=one_one&photo_host=secure" % (text,memberid)
+        res = self.session.post(url, headers=self.get_headers('https://secure.meetup.com/messages/?new_convo=true'), data=data, allow_redirects=False)
+        return res.status_code == 200
+
+    def send2(self, text, member_list):
+        url = self.endpoint + '/' + self.newMessageEndpoint
+        member_ids = "%2C".join([str(m) for m in member_list])
+        data = "title=&text=%s&member=%s&conversation_kind=group&photo_host=secure" % (text,member_ids)
+        print data
         res = self.session.post(url, headers=self.get_headers('https://secure.meetup.com/messages/?new_convo=true'), data=data, allow_redirects=False)
         return res.status_code == 200

@@ -30,6 +30,7 @@ class Main:
         self.user_photos = {}
         self.survey_data_filename = "c:/users/aaron/desktop/survey_data.txt"
         self.meetup_client = meetup.Meetup(conf.api_key)
+        self.message_client = Message()
 
     def get_weekly_opt_ins(self):
         arg_dict = {}
@@ -54,6 +55,7 @@ class Main:
             except:
                 print "didn't get 'em"
 
+        print "Missing Surveys", set(opt_ins.keys()).difference(set([str(u.user_id) for u in self.users]))
         return opt_ins
 
     def get_users(self):
@@ -102,8 +104,10 @@ class Main:
         ## TODO: Update algorithm to incorporate more than geography
         analyze = Analyze(self.users)
         analyze.analyze_easy_potentials()
-        analyze.get_best_matches()
+        match_results = analyze.get_best_matches()
         potential_pairs = analyze.get_potential_pairs()
+
+        return match_results
 
     #    for user in users:
     #        if user.user_id not in potential_pairs:
@@ -111,7 +115,6 @@ class Main:
     #        print user.user_id,user.name
 
     def send_missing_survey_messages(self,debug=True):
-        msg_client = Message()
         msg_no_name = Text(self.group_id).take_survey
 
         opt_ins = self.get_weekly_opt_ins()
@@ -123,16 +126,25 @@ class Main:
                 if debug:
                     print msg
                 else:
-                    print msg_client.send(msg,str(opt_in))
-                
+                    print message_client.send(msg,str(opt_in))
+
+    def send_pair_assignment_messages(self,finish_date,pairs,debug=True):
+        msg_no_names = Text(self.group_id).assign_pair
+        for pair in pairs:
+            msg = msg_no_names % (finish_date,pair[0].name,pair[1].name)
+            if debug:
+                print msg
+            else:
+                self.message_client.send2(msg,[str(p.user_id) for p in pair])
 
 
 if __name__ == "__main__":
     spam_missing_surveys = True
-    
+
     for group_id in Config.groups:
         main = Main(group_id)
         main.get_users()
         if spam_missing_surveys:
             main.send_missing_survey_messages()
-        main.analyze_pairs()
+        pairs = main.analyze_pairs()
+        main.send_pair_assignment_messages("April 17th", pairs)

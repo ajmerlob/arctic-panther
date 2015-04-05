@@ -4,6 +4,7 @@ class Analyze:
     def __init__(self,users):
         self.potential_pairs = {}
         self.users = users
+        self.match_results = set([])
 
     def get_user_by_id(self,user_id):
         for user in self.users:
@@ -74,6 +75,16 @@ class Analyze:
                 all_matches[pair] = user
             return all_matches
 
+        def get_match_results(all_matches):
+            match_results = set([])
+            for match in all_matches:
+                u1= self.get_user_by_id(match)
+                u2= self.get_user_by_id(all_matches[match])
+                if u1.user_id > u2.user_id:
+                    match_results.add((u1,u2))
+                else:
+                    match_results.add((u2,u1))
+            return match_results
 
         match_counts = {}
         for x in range(1000):
@@ -87,9 +98,14 @@ class Analyze:
             all_matches = calculate()
             current_matches = len(all_matches)
 
+
         print len(all_matches),all_matches
         for match in all_matches:
             u1= self.get_user_by_id(match)
             u2= self.get_user_by_id(all_matches[match])
             print u1.name, "---", u2.name, " ||| ", u1.user_id, "---", u2.user_id
+
+        self.match_results = get_match_results(all_matches)
+        return self.match_results
+        
 
