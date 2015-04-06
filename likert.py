@@ -1,3 +1,12 @@
+"""
+This class holds survey data in a dictionary
+Keys are the levels
+Values are lists of questions with a response at that level
+For example, geog data might be a dictionary like:
+{"Never":["Place 1","Place 3"], "Hard":["Place 4"], "Easy":["Place 2","Place 5"]}
+When defining a Likert, you should use the static TYPEs like Likert.TYPE_GEOG
+"""
+
 class Likert:
     """A dictionary of lists - holding survey data"""
     
