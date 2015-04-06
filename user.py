@@ -1,3 +1,9 @@
+"""
+Holds the survey data about a User (with help from the Likert class)
+The user_id must correlate with the Meetup id for the user
+"""
+
+
 from likert import Likert
 
 class User:
