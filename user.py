@@ -3,11 +3,11 @@ Holds the survey data about a User (with help from the Likert class)
 The user_id must correlate with the Meetup id for the user
 """
 
-
 from likert import Likert
 
 class User:
     def __init__(self, user_id):
+        """The user_id must correlate with the Meetup id for the user"""
         self.user_id = user_id
         self.name = ""
         self.career_stage = ""
