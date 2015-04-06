@@ -18,7 +18,7 @@ class Likert:
         assert(type in self.TYPE)
         self.type = type
         self.data = {}
-        for level in TYPE[type]:
+        for level in Likert.TYPE[type]:
             self.data[level] = []
 
     def print_string(self):
@@ -42,6 +42,8 @@ class Likert:
 
     def append_at_level(self,level,app):
         """Add data to a level using this method - don't mess with the data directly"""
+        if level not in Likert.TYPE[self.type]:
+            self.data[level] = []
         self.data[level].append(app)
 
     def get_at_level(self,level):
