@@ -16,5 +16,6 @@ Creates optimal small-groups of data scientist
   - self-reported geography (Likert class)
   - self-reported skills/tools/methods (Likert class)
   - preferences (Likert class)
-- Likert class - Dictionary holding lists 
+- Likert class - Dictionary holding lists holding survey data
 - Analyze class - Container for analysis functions (called from Main)
+- Simulator class - Lets you test stuff out without real data
