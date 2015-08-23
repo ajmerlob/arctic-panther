@@ -17,7 +17,7 @@ __date__ ="$Mar 28, 2015 7:56:55 AM$"
 
 conf = Config()
 
-if conf.api_key == "" or conf.oauth_key == "" or conf.oauth_secret == "":
+if conf.meetup_api_key == "" or conf.meetup_oauth_key == "" or conf.meetup_oauth_secret == "":
     print "PLEASE EDIT config.py AND ADD YOUR API KEY AND OAUTH KEY/SECRET"
     sys.exit()
 
@@ -29,7 +29,7 @@ class Main:
         self.users = set ([])
         self.user_photos = {}
         self.survey_data_filename = "c:/users/aaron/desktop/survey_data.txt"
-        self.meetup_client = meetup.Meetup(conf.api_key)
+        self.meetup_client = meetup.Meetup(conf.meetup_api_key)
         self.message_client = Message()
         self.aaron_matches = False
 

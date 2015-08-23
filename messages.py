@@ -19,11 +19,11 @@ class Message:
     #authFile should be a file where your username and password are stored, separated by a newline
     def __init__(self):
         conf = Config()
-        if conf.username == "" or conf.password == "":
+        if conf.meetup_message_username == "" or conf.meetup_message_password == "":
             raise Exception('Config username and password must exist!')
 
-        self.username = conf.username
-        self.password = conf.password
+        self.username = conf.meetup_message_username
+        self.password = conf.meetup_message_password
         self.userAgent = random.choice(self.userAgents)
         self.session = requests.session()
         self.token = self.get_auth_token()
