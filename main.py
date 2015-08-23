@@ -31,6 +31,7 @@ class Main:
         self.survey_data_filename = "c:/users/aaron/desktop/survey_data.txt"
         self.meetup_client = meetup.Meetup(conf.api_key)
         self.message_client = Message()
+        self.aaron_matches = False
 
     def get_weekly_opt_ins(self):
         arg_dict = {}
@@ -55,7 +56,6 @@ class Main:
             except:
                 print "didn't get 'em"
 
-        print "Missing Surveys", set(opt_ins.keys()).difference(set([str(u.user_id) for u in self.users]))
         return opt_ins
 
     def get_users(self):
@@ -80,8 +80,19 @@ class Main:
             ## From the Meetup event API
             opt_ins = self.get_weekly_opt_ins()
 
+            missing_surveys = set([str(u) for u in opt_ins.keys()]).difference(set([str(u.user_id) for u in all_users]))
+            print "Missing Surveys", len(missing_surveys), missing_surveys
+
             ## Filter to just opted-in users
             self.users = set([i for i in all_users if int(i.user_id) in opt_ins])
+            
+
+            ## Filter out Aaron, as desired
+            if not self.aaron_matches:
+                for u in set(self.users):
+                    if u.user_id in ["87429312","185839888"]:
+                        self.users.remove(u)
+                        break
 
         else:
             print "Simulating data"
@@ -126,20 +137,29 @@ class Main:
                 if debug:
                     print msg
                 else:
-                    print message_client.send(msg,str(opt_in))
+                    print "Starting Message:",msg.split("\n")[0]
+                    print self.message_client.send(msg,str(opt_in))
+                    print msg
 
     def send_pair_assignment_messages(self,finish_date,pairs,debug=True):
         msg_no_names = Text(self.group_id).assign_pair
+        if raw_input('Continue Sending Messages - T or F : ') != "T":
+            return
         for pair in pairs:
             msg = msg_no_names % (finish_date,pair[0].name,pair[1].name)
-            if debug:
-                print msg
+            if raw_input("Send Pair %s -- %s -- T or F: " % (pair[0].name,pair[1].name)) != "T":
+                print "Skipping %s -- %s" % (pair[0].name,pair[1].name)
+                continue
             else:
-                self.message_client.send2(msg,[str(p.user_id) for p in pair])
+                if debug:
+                    print "DEBUG ONLY - NOT ACTUALLY SENDING"
+                    print msg
+                else:
+                    self.message_client.send2(msg,[str(p.user_id) for p in pair])
 
 
 if __name__ == "__main__":
-    spam_missing_surveys = True
+    spam_missing_surveys = False
 
     for group_id in Config.groups:
         main = Main(group_id)
@@ -147,4 +167,4 @@ if __name__ == "__main__":
         if spam_missing_surveys:
             main.send_missing_survey_messages()
         pairs = main.analyze_pairs()
-        main.send_pair_assignment_messages("April 17th", pairs)
+        main.send_pair_assignment_messages("May 29th", pairs,False)

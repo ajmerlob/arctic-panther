@@ -103,7 +103,7 @@ class Analyze:
         for match in all_matches:
             u1= self.get_user_by_id(match)
             u2= self.get_user_by_id(all_matches[match])
-            print u1.name, "---", u2.name, " ||| ", u1.user_id, "---", u2.user_id
+            print u1.name, "---", u2.name, " ||| ", u1.user_id, "---", u2.user_id, "|||", set(u2.geogs.get_at_level("Easy")).intersection(set(u1.geogs.get_at_level("Easy")))
 
         self.match_results = get_match_results(all_matches)
         return self.match_results
