@@ -21,6 +21,10 @@ class User:
         self.industry = []  ## These help me improve the survey and hold events of interest to you
         self.prefs = Likert(Likert.TYPE_AGREEMENT)
 
+    def __repr__(self):
+        self.to_string()
+        return "End User " + str(self.user_id)
+
     def to_string(self):
         """Prints out the user info"""
         def print_likert(d,text):
