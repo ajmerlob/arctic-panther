@@ -1,10 +1,10 @@
 from user import User
+from parsers.parser import Parser
 
-class Parser:
+class TextParser(Parser):
     def __init__(self, survey_uri):
         self.users = set([])
         self.survey_uri = survey_uri
-        self.parse()
 
     def get_users(self):
         print "Total Num Users:", len(self.users)
@@ -121,4 +121,6 @@ class Parser:
                     if "That are quite different from me" in line:
                         current_user.prefs.append_at_level(get_agree(line),"different")
 
+        for user in self.users:
+            print user
         return self.users
