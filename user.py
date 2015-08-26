@@ -22,8 +22,8 @@ class User:
         self.prefs = Likert(Likert.TYPE_AGREEMENT)
 
     def __repr__(self):
-        self.to_string()
-        return "End User " + str(self.user_id)
+#        self.to_string()
+        return "User " + str(self.user_id) + " " + self.name
 
     def to_string(self):
         """Prints out the user info"""

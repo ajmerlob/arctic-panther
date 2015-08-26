@@ -12,6 +12,7 @@ import cPickle as pickle
 import sys
 from config import Config
 from user import User
+from parsers.parser import Parser
 
 HOST = "https://api.surveymonkey.net"
 SURVEY_LIST_ENDPOINT = "/v2/surveys/get_survey_list"
@@ -21,12 +22,13 @@ SURVEY_RESPONSES_ENDPOINT = "/v2/surveys/get_responses"
 
 class APIParser(Parser):
     def __init__(self,survey_id):
-        conf = Config()
+        print "initing api parser"
         self.users = set([])
+        self.conf = Config()
         self.respondent_id_to_user = {}
         self.survey_id = survey_id
-        access_token = conf.surveymonkey_token
-        api_key = conf.surveymonkey_api_key
+        access_token = self.conf.surveymonkey_token
+        api_key = self.conf.surveymonkey_api_key
 
         self.client = requests.session()
         self.client.headers = {
@@ -242,8 +244,8 @@ class APIParser(Parser):
 
             ## Interrogate the question_answer_dict
 #            print conf.survey_api_ids
-            for survey_name in conf.survey_api_ids:
-                survey_data = conf.survey_api_ids[survey_name]
+            for survey_name in self.conf.survey_api_ids:
+                survey_data = self.conf.survey_api_ids[survey_name]
 #                print survey_data
                 if "question_ids" in survey_data:
                     api_id_dict = survey_data["question_ids"]
@@ -314,16 +316,8 @@ class APIParser(Parser):
 if __name__ == "__main__":
     ## Configure the client
     sapi = APIParser(u"67951656")
-    conf = Config()
-
     responses = sapi.pickle_or_get_responses("c:/users/aaron/desktop/responses.out")
-#    order_to_id = [x["question_ids"] for x in conf.survey_api_ids.values() if "survey_id" in x and x["survey_id"] == survey_id][0]
-#    id_to_order = {}
-#    for order_id in order_to_id:
-#        id_to_order[order_to_id[order_id]] = order_id
-
     details = sapi.pickle_or_get_details("c:/users/aaron/desktop/details{}.out".format(sapi.survey_id))
-    ## Send responses to be parsed
 
     design = sapi.parse_design(details)
     sapi.parse_responses(design,responses)

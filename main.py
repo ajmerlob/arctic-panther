@@ -4,7 +4,8 @@ import sys
 import os.path
 
 from config import Config
-from parse_survey import Parser
+from parsers.text_parser import TextParser
+from parsers.api_parser import APIParser
 from analyze import Analyze
 from simulator import Simulator
 from messages import Message
@@ -29,6 +30,7 @@ class Main:
         self.users = set ([])
         self.user_photos = {}
         self.survey_data_filename = "c:/users/aaron/desktop/survey_data.txt"
+        self.survey_api_survey_id = u"67951656"
         self.meetup_client = meetup.Meetup(conf.meetup_api_key)
         self.message_client = Message()
         self.aaron_matches = False
@@ -58,48 +60,56 @@ class Main:
 
         return opt_ins
 
+    def get_users_parser(self,parser_type,survey_unique_identifier):
+        parser = parser_type(survey_unique_identifier)
+        parser.parse()
+        all_users = parser.get_users()
+
+        ## Remember all previous matches
+        ## TODO: Update analyze function to exclude previous pairs (Don't want the same person each week)
+        ## TODO: Persist to a database instead of a file
+        previous_pairs = set([])
+        previous_pairs_filename = "c:/users/aaron/desktop/previous_pairs.txt"
+        if os.path.isfile(previous_pairs_filename):
+            with open (previous_pairs_filename) as prev:
+                for line in prev:
+                    usera, userb = line.strip().split(",")
+                    previous_pairs.add((usera,userb))
+                    previous_pairs.add((userb,usera))
+
+        ## Grabs the list of people interested in being matched this week
+        ## From the Meetup event API
+        opt_ins = self.get_weekly_opt_ins()
+
+        missing_surveys = set([str(u) for u in opt_ins.keys()]).difference(set([str(u.user_id) for u in all_users]))
+        print "Missing Surveys", len(missing_surveys), missing_surveys
+
+        ## Filter to just opted-in users
+        users = set([i for i in all_users if int(i.user_id) in opt_ins])
+
+
+        ## Filter out Aaron, as desired
+        if not self.aaron_matches:
+            for u in set(users):
+                if u.user_id in ["87429312","185839888"]:
+                    users.remove(u)
+                    break
+
+        return users
+
     def get_users(self):
         ## Read in the survey data or simulate new data
-        if os.path.isfile(self.survey_data_filename):
-            parser = Parser(self.survey_data_filename)
-            all_users = parser.get_users()
-
-            ## Remember all previous matches
-            ## TODO: Update analyze function to exclude previous pairs (Don't want the same person each week)
-            ## TODO: Persist to a database instead of a file
-            previous_pairs = set([])
-            previous_pairs_filename = "c:/users/aaron/desktop/previous_pairs.txt"
-            if os.path.isfile(previous_pairs_filename):
-                with open (previous_pairs_filename) as prev:
-                    for line in prev:
-                        usera, userb = line.strip().split(",")
-                        previous_pairs.add((usera,userb))
-                        previous_pairs.add((userb,usera))
-
-            ## Grabs the list of people interested in being matched this week
-            ## From the Meetup event API
-            opt_ins = self.get_weekly_opt_ins()
-
-            missing_surveys = set([str(u) for u in opt_ins.keys()]).difference(set([str(u.user_id) for u in all_users]))
-            print "Missing Surveys", len(missing_surveys), missing_surveys
-
-            ## Filter to just opted-in users
-            self.users = set([i for i in all_users if int(i.user_id) in opt_ins])
-            
-
-            ## Filter out Aaron, as desired
-            if not self.aaron_matches:
-                for u in set(self.users):
-                    if u.user_id in ["87429312","185839888"]:
-                        self.users.remove(u)
-                        break
-
-        else:
-            print "Simulating data"
-            ## Simulate some number of survey responses
-            sim = Simulator()
-            sim.simulate(200) ## By adding a seed parameter, you can have reproducible sims
-            self.users = sim.get_users()
+        try:
+            self.users = self.get_users_parser(APIParser, self.survey_api_survey_id)
+        except:
+            if os.path.isfile(self.survey_data_filename):
+                self.users = self.get_users_parser(TextParser, self.survey_data_filename)
+            else:
+                print "Simulating data"
+                ## Simulate some number of survey responses
+                sim = Simulator()
+                sim.simulate(200) ## By adding a seed parameter, you can have reproducible sims
+                self.users = sim.get_users()
 
     #    ## Print some summaries
     #    for user in users:
@@ -161,10 +171,11 @@ class Main:
 if __name__ == "__main__":
     spam_missing_surveys = False
 
+
     for group_id in Config.groups:
         main = Main(group_id)
         main.get_users()
         if spam_missing_surveys:
             main.send_missing_survey_messages()
         pairs = main.analyze_pairs()
-        main.send_pair_assignment_messages("May 29th", pairs,False)
+#        main.send_pair_assignment_messages("May 29th", pairs,False)
