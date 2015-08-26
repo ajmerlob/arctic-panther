@@ -19,11 +19,12 @@ SURVEY_DETAILS_ENDPOINT = "/v2/surveys/get_survey_details"
 SURVEY_RESPONDENTS_ENDPOINT = "/v2/surveys/get_respondent_list"
 SURVEY_RESPONSES_ENDPOINT = "/v2/surveys/get_responses"
 
-class SurveyAPI:
-    def __init__(self):
+class APIParser(Parser):
+    def __init__(self,survey_id):
         conf = Config()
         self.users = set([])
         self.respondent_id_to_user = {}
+        self.survey_id = survey_id
         access_token = conf.surveymonkey_token
         api_key = conf.surveymonkey_api_key
 
@@ -161,9 +162,6 @@ class SurveyAPI:
                 answer_col = answer['col']
                 answer_text = answer_text_dict[answer_col]
 
-            if question_id == 9:
-                print question_text, answer_text
-
             if question_id == 1:
                 if "What is your DS ProD member number?" in question_text:
                     user_id = answer_text
@@ -178,7 +176,6 @@ class SurveyAPI:
                     current_user.name = answer_text
             elif question_id == 2:
                 current_user.career_stage = question_text
-                print "question2",answer_text
             elif question_id == 3:
                 for level in current_user.methods.get_levels():
                     level_txt = current_user.methods.txt(level)
@@ -260,73 +257,75 @@ class SurveyAPI:
                             continue
                         answers = question_answer_dict[survey_qid]
 
-                        print "ENTERING answer loop", current_qid_lookup
+#                        print "ENTERING answer loop", current_qid_lookup
                         self.answer_q(respondent_id,current_qid_lookup,design,answers)
 
+    def get_users(self):
+        print "Total Num Users:", len(self.users)
+        return self.users
+
+    def parse(self):
+        survey_id = self.survey_id
+        respondents_id_list = self.get_respondents_list(survey_id)
+        responses = self.get_responses(survey_id, respondents_id_list)
+        details = self.get_survey_details(survey_id)
+        ## Send responses to be parsed
+        design = self.parse_design(details)
+        self.parse_responses(design,responses)
+        return self.users
 
 
 
+    def pickle_or_get_responses(self,filename):
+        try:
+    #        print "attempting load"
+            with open(filename,'rb') as pickleload:
+    #            print "opened load"
+                responses = pickle.load(pickleload)
+                print "loaded pickle"
+        except:
+            print "getting from web"
+            respondents_id_list = sapi.get_respondents_list(self.survey_id)
+            print respondents_id_list
+            responses = sapi.get_responses(self.survey_id, respondents_id_list)
 
-def pickle_or_get_responses(filename):
-    try:
-#        print "attempting load"
-        with open(filename,'rb') as pickleload:
-#            print "opened load"
-            responses = pickle.load(pickleload)
-            print "loaded pickle"
-    except:
-        print "getting from web"
-        respondents_id_list = sapi.get_respondents_list(survey_id)
-        print respondents_id_list
-        responses = sapi.get_responses(survey_id, respondents_id_list)
+            with open(filename,'wb') as pickledump:
+                pickle.dump(responses,pickledump)
+        return responses
 
-        with open(filename,'wb') as pickledump:
-            pickle.dump(responses,pickledump)
-    return responses
+    def pickle_or_get_details(self,filename):
+        try:
+    #        print "attempting load"
+            with open(filename,'rb') as pickleload:
+    #            print "opened load"
+                details = pickle.load(pickleload)
+                print "loaded pickle"
+        except:
+            print "getting from web"
+            details = sapi.get_survey_details(self.survey_id)
 
-def pickle_or_get_details(filename,survey_id):
-    try:
-#        print "attempting load"
-        with open(filename,'rb') as pickleload:
-#            print "opened load"
-            details = pickle.load(pickleload)
-            print "loaded pickle"
-    except:
-        print "getting from web"
-        details = sapi.get_survey_details(survey_id)
+            with open(filename,'wb') as pickledump:
+                pickle.dump(details,pickledump)
+        return details
 
-        with open(filename,'wb') as pickledump:
-            pickle.dump(details,pickledump)
-    return details
+
 
 
 if __name__ == "__main__":
     ## Configure the client
-    sapi = SurveyAPI()
+    sapi = APIParser(u"67951656")
     conf = Config()
 
-    survey_id = u"67951656"
-
-    responses = pickle_or_get_responses("c:/users/aaron/desktop/responses.out")
+    responses = sapi.pickle_or_get_responses("c:/users/aaron/desktop/responses.out")
 #    order_to_id = [x["question_ids"] for x in conf.survey_api_ids.values() if "survey_id" in x and x["survey_id"] == survey_id][0]
 #    id_to_order = {}
 #    for order_id in order_to_id:
 #        id_to_order[order_to_id[order_id]] = order_id
 
-    details = pickle_or_get_details("c:/users/aaron/desktop/details{}.out".format(survey_id),survey_id)
+    details = sapi.pickle_or_get_details("c:/users/aaron/desktop/details{}.out".format(sapi.survey_id))
     ## Send responses to be parsed
 
     design = sapi.parse_design(details)
     sapi.parse_responses(design,responses)
 
-#    for user in sapi.users:
-#        print user
-#        break
-
-
-
-    
-
-
-    ## Use the configured client
 
