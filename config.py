@@ -1,5 +1,7 @@
 class Config:
     groups = {}
+    survey_api_ids = {}
+    
     def __init__(self):
         self.meetup_api_key = ""
         self.meetup_oauth_key = ""
