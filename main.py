@@ -3,11 +3,11 @@ import math
 import sys
 import os.path
 
-from config import Config
+from core.config import Config
 from parsers.text_parser import TextParser
 from parsers.api_parser import APIParser
 from analyze import Analyze
-from simulator import Simulator
+from core.simulator import Simulator
 from messages import Message
 from text import Text
 

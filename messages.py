@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup as soup
 import random
 import os
-from config import Config
+from core.config import Config
 
 class Message:
 
