@@ -1,5 +1,5 @@
-from user import User
-from parsers.parser import Parser
+from core.user import User
+from pair.parsers.parser import Parser
 
 class TextParser(Parser):
     def __init__(self, survey_uri):
