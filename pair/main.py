@@ -62,7 +62,8 @@ class Main:
 
     def get_users_parser(self,parser_type,survey_unique_identifier):
         parser = parser_type(survey_unique_identifier)
-        parser.parse()
+        if not parser.parse():
+            return None
         all_users = parser.get_users()
 
         ## Remember all previous matches
@@ -85,8 +86,8 @@ class Main:
         print "Missing Surveys", len(missing_surveys), missing_surveys
 
         ## Filter to just opted-in users
+        print "Pre-filter # users", len(all_users)
         users = set([i for i in all_users if int(i.user_id) in opt_ins])
-
 
         ## Filter out Aaron, as desired
         if not self.aaron_matches:
@@ -94,14 +95,15 @@ class Main:
                 if u.user_id in ["87429312","185839888"]:
                     users.remove(u)
                     break
+        print "Post-filter # users", len(users)
 
         return users
 
     def get_users(self):
         ## Read in the survey data or simulate new data
-        try:
-            self.users = self.get_users_parser(APIParser, self.survey_api_survey_id)
-        except:
+        self.users = self.get_users_parser(APIParser, self.survey_api_survey_id)
+        print self.users
+        if self.users is None:
             if os.path.isfile(self.survey_data_filename):
                 self.users = self.get_users_parser(TextParser, self.survey_data_filename)
             else:

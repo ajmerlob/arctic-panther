@@ -5,7 +5,7 @@ and stores it somewhere
 __author__="Aaron"
 __date__ ="$Aug 23, 2015 1:06:52 PM$"
 
-import pair.requests
+import pair.requests as requests
 import json
 import time
 import cPickle as pickle
@@ -274,7 +274,7 @@ class APIParser(Parser):
         ## Send responses to be parsed
         design = self.parse_design(details)
         self.parse_responses(design,responses)
-        return self.users
+        return len(self.users) > 0
 
 
 

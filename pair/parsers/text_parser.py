@@ -123,4 +123,4 @@ class TextParser(Parser):
 
         for user in self.users:
             print user
-        return self.users
+        return len(self.users) > 0
