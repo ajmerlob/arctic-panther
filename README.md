@@ -21,9 +21,12 @@ Creates optimal small-groups of data scientist
   - Config class - Holds configuration settings to access APIs, etc
 - Pair - Pair data science
   - Main class - Drives the pair data science process
-  - Analyze class - Container for analysis functions (called from Main)
+  - Matchers - Chooses the matches given an algo and set of users
+    - Matcher Abstract class - Matches users given a set of users
+    - GeogMatcher class - Matches users based on geography (called from Main)
   - Messages class - Sends messages from Meetup
   - Text class - Holds the text that's send in various messages
   - Parsers - Grabs data from various sources
+    - Parser Abstract class - Grabs and parses data
     - APIParser - Grabs and parses data from SurveyMonkey API
     - TextParser - Grabs and parses data stored in text files
