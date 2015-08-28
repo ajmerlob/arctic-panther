@@ -123,19 +123,14 @@ class Main:
 
     def analyze_pairs(self):
         # Analyze pairs
-        ## This is a very basic algorithm that only makes use of geography
+        ## GeogMatcher is a very basic algorithm that only makes use of geography
         ## TODO: Update algorithm to incorporate more than geography
-        analyze = Analyze(self.users)
-        analyze.analyze_easy_potentials()
+        analyze = GeogMatcher(self.users)
         match_results = analyze.get_best_matches()
-        potential_pairs = analyze.get_potential_pairs()
 
         return match_results
 
-    #    for user in users:
-    #        if user.user_id not in potential_pairs:
-    #            print "No Matches for:", user.name
-    #        print user.user_id,user.name
+    
 
     def send_missing_survey_messages(self,debug=True):
         msg_no_name = Text(self.group_id).take_survey
