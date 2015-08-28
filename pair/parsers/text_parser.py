@@ -1,3 +1,5 @@
+__author__="Aaron"
+
 from core.user import User
 from pair.parsers.parser import Parser
 

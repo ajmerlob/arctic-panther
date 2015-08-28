@@ -1,7 +1,3 @@
-"""
-This class grabs survey data from the surveymonkey API
-and stores it somewhere
-"""
 __author__="Aaron"
 __date__ ="$Aug 23, 2015 1:06:52 PM$"
 
@@ -21,6 +17,7 @@ SURVEY_RESPONDENTS_ENDPOINT = "/v2/surveys/get_respondent_list"
 SURVEY_RESPONSES_ENDPOINT = "/v2/surveys/get_responses"
 
 class APIParser(Parser):
+    """Grab survey data from surveymonkey API and store."""
     def __init__(self,survey_id):
         print "initing api parser"
         self.users = set([])

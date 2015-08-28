@@ -1,3 +1,5 @@
+__author__="Aaron"
+
 from pair.main import Main
 from core.config import Config
 

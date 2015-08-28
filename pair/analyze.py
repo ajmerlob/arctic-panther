@@ -21,7 +21,7 @@ class Analyze:
             user_id = user.user_id
             easy_geogs = user.geogs.get_at_level("Easy")
             if easy_geogs is None:
-                print "No Easy Matches for :", user.name, user_id, ":-(", user.geogs.print_string()
+                print "No Easy Matches for :", user.name, user_id, ":-(", user.geogs.get_print_string()
                 continue
             for easy in easy_geogs:
                 if easy not in loc:
