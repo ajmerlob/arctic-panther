@@ -1,5 +1,7 @@
-from user import User
-from parsers.parser import Parser
+__author__="Aaron"
+
+from core.user import User
+from pair.parsers.parser import Parser
 
 class TextParser(Parser):
     def __init__(self, survey_uri):
@@ -123,4 +125,4 @@ class TextParser(Parser):
 
         for user in self.users:
             print user
-        return self.users
+        return len(self.users) > 0

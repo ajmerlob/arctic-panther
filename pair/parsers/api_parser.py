@@ -1,18 +1,14 @@
-"""
-This class grabs survey data from the surveymonkey API
-and stores it somewhere
-"""
 __author__="Aaron"
 __date__ ="$Aug 23, 2015 1:06:52 PM$"
 
-import requests
+import pair.requests as requests
 import json
 import time
 import cPickle as pickle
 import sys
-from config import Config
-from user import User
-from parsers.parser import Parser
+from core.config import Config
+from core.user import User
+from pair.parsers.parser import Parser
 
 HOST = "https://api.surveymonkey.net"
 SURVEY_LIST_ENDPOINT = "/v2/surveys/get_survey_list"
@@ -21,6 +17,7 @@ SURVEY_RESPONDENTS_ENDPOINT = "/v2/surveys/get_respondent_list"
 SURVEY_RESPONSES_ENDPOINT = "/v2/surveys/get_responses"
 
 class APIParser(Parser):
+    """Grab survey data from surveymonkey API and store."""
     def __init__(self,survey_id):
         print "initing api parser"
         self.users = set([])
@@ -274,7 +271,7 @@ class APIParser(Parser):
         ## Send responses to be parsed
         design = self.parse_design(details)
         self.parse_responses(design,responses)
-        return self.users
+        return len(self.users) > 0
 
 
 

@@ -1,3 +1,5 @@
+__author__="Aaron"
+
 import math
 import sys
 import random
@@ -6,22 +8,12 @@ from user import User
 from likert import Likert
 import names
 
-#class User:
-#    def __init__(self, user_id):
-#        self.user_id = user_id
-#        self.name = ""
-#        self.career_stage = ""
-#        self.broad_skills = Likert(Likert.TYPE_EXPERTISE)
-#        self.geogs = Likert(Likert.TYPE_GEOG)
-#        self.gender = ""
-#        self.skills = Likert(Likert.TYPE_EXPERTISE)
-#        self.software = []  ## These help me improve the survey and hold events of interest to you
-#        self.methods = Likert(Likert.TYPE_EXPERTISE)
-#        self.analysis = []  ## These help me improve the survey and hold events of interest to you
-#        self.industry = []  ## These help me improve the survey and hold events of interest to you
-#        self.prefs = Likert(Likert.TYPE_AGREEMENT)
-
 class Simulator():
+    """Simulates users with filled out survey data.
+
+    Can be called deterministically.
+    Needs to be updated with changes to User model.
+    """
     ## These are the simulated relative proportions of each response
     ## They don't need to add to 100, but they do need to be integers
     CAREER_STAGES = {"Student": 10, "Entry": 15, "Early":25, "Middle": 40, "Late": 10}
@@ -59,32 +51,69 @@ class Simulator():
 
 
     def __init__(self):
+        """Initialize Simulator and set users to empty set"""
         self.users = set([])
 
     def get_users(self):
+        """Return set of simulated users"""
         return self.users
 
-    def simulate(self, num_users,seed = random.randint(0,1000000)):
-        random.seed(seed)
-        user_ids = random.sample(range(9000000),num_users)
-        for user_id in user_ids:
-            self.users.add(self.simulate_one(user_id))
+    def clear_users(self):
+        self.users = set([])
 
-    def simulate_one(self,user_id):
+    def simulate(self, num_users,seed = random.randint(0,1000000)):
+        """Simulate a number of new users
+
+        Multiple calls to simulate will continue to grow the set
+
+        Keyword Arguments:
+        num_users -- the number of users to be simulated
+        seed -- (optional) a random seed for deterministic calling
+        """
+        ## Sets the random seed (deterministic if specified as arg)
+        random.seed(seed)
+
+        ## Calculates the set of unused ids
+        possible_ids = set(range(9000000))
+        pre_existing_ids = set([user.user_id for user in self.users])
+        unused_ids = list(possible_ids - pre_existing_ids)
+
+        ## Draws a set of non-overlapping unique ids for
+        ## the simulated users
+        user_ids = random.sample(unused_ids,num_users)
+
+        ## Simulates a user for each user_id, and adds
+        ## to the set of users
+        for user_id in user_ids:
+            self.users.add(self.__simulate_one(user_id))
+
+    def __simulate_one(self,user_id):
+        """Simulate a single user given a user id"""
         def get_weighted_choice(choices_dict):
+            """Return an arbitrary attribute given the appropriate choice proportions"""
             ## Thanks to Maxime for this algo
             list_of_choices = [k for k in choices_dict for dummy in range(choices_dict[k])]
             return random.choice(list_of_choices)
 
         def get_nested_weighted_choice(likert_dict,likert_type):
+            """Return a likert with arbitrary attributes given nested choice proportions
+
+            Some of the attributes have a nested structure, in that
+            the top level attribute has several sub-levels.  This
+            function iterates over the second level attributes
+            """
             likert = Likert(likert_type)
             for app in likert_dict:
                 random_level = get_weighted_choice(likert_dict[app])
                 likert.append_at_level(random_level, app)
             return likert
 
+        ## Create the User from the user_id
         user = User(user_id)
-        user.name = names.get_full_name()
+        ## Assign user a realistic fake name
+        user.name = self.__get_unused_name()
+        ## Assign attributes based on the proportions of responses
+        ## specified by the class variables above
         user.career_stage = get_weighted_choice(Simulator.CAREER_STAGES)
         user.gender = get_weighted_choice(Simulator.GENDERS)
         user.broad_skills = get_nested_weighted_choice(Simulator.BROAD_SKILLS,Likert.TYPE_EXPERTISE)
@@ -94,3 +123,10 @@ class Simulator():
         user.prefs = get_nested_weighted_choice(Simulator.PREFS,Likert.TYPE_AGREEMENT)
 
         return user
+
+    def __get_unused_name(self):
+        used_names = set([user.name for user in self.users])
+        while True:
+            name = names.get_full_name()
+            if name not in used_names:
+                return name

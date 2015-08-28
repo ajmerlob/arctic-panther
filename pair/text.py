@@ -1,4 +1,4 @@
-from config import Config
+from core.config import Config
 
 class Text:
     def __init__(self, group_id):
