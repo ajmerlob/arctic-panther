@@ -1,3 +1,5 @@
+__author__="Aaron"
+
 import math
 import sys
 import random
@@ -56,8 +58,13 @@ class Simulator():
         """Return set of simulated users"""
         return self.users
 
+    def clear_users(self):
+        self.users = set([])
+
     def simulate(self, num_users,seed = random.randint(0,1000000)):
-        """Simulate a number of users
+        """Simulate a number of new users
+
+        Multiple calls to simulate will continue to grow the set
 
         Keyword Arguments:
         num_users -- the number of users to be simulated
@@ -89,7 +96,7 @@ class Simulator():
             return random.choice(list_of_choices)
 
         def get_nested_weighted_choice(likert_dict,likert_type):
-            """Return an arbitrary attribute given nested choice proportions
+            """Return a likert with arbitrary attributes given nested choice proportions
 
             Some of the attributes have a nested structure, in that
             the top level attribute has several sub-levels.  This
@@ -104,7 +111,7 @@ class Simulator():
         ## Create the User from the user_id
         user = User(user_id)
         ## Assign user a realistic fake name
-        user.name = names.get_full_name()
+        user.name = self.__get_unused_name()
         ## Assign attributes based on the proportions of responses
         ## specified by the class variables above
         user.career_stage = get_weighted_choice(Simulator.CAREER_STAGES)
@@ -116,3 +123,10 @@ class Simulator():
         user.prefs = get_nested_weighted_choice(Simulator.PREFS,Likert.TYPE_AGREEMENT)
 
         return user
+
+    def __get_unused_name(self):
+        used_names = set([user.name for user in self.users])
+        while True:
+            name = names.get_full_name()
+            if name not in used_names:
+                return name

@@ -1,13 +1,16 @@
-"""
-Holds the survey data about a User (with help from the Likert class)
-The user_id must correlate with the Meetup id for the user
-"""
+__author__="Aaron"
 
 from likert import Likert
 
 class User:
     def __init__(self, user_id):
-        """The user_id must correlate with the Meetup id for the user"""
+        """Initializes a user instance with blank attributes.
+
+        Holds the survey data about a User (with help from the Likert class)
+        The user_id must correlate with the Meetup id for the user
+
+        The user_id must correlate with the Meetup id for the user
+        """
         self.user_id = user_id
         self.name = ""
         self.career_stage = ""
@@ -22,11 +25,12 @@ class User:
         self.prefs = Likert(Likert.TYPE_AGREEMENT)
 
     def __repr__(self):
+        """Return 'User UserID UserName'"""
 #        self.to_string()
         return "User " + str(self.user_id) + " " + self.name
 
     def to_string(self):
-        """Prints out the user info"""
+        """Print the user attribute info"""
         def print_likert(d,text):
             for x in d.get_levels():
                 print text, x, d.get_at_level(x)
