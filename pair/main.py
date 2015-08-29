@@ -1,3 +1,5 @@
+__author__="Aaron"
+
 import main
 import math
 import sys
@@ -23,19 +25,24 @@ if conf.meetup_api_key == "" or conf.meetup_oauth_key == "" or conf.meetup_oauth
     sys.exit()
 
 class Main:
+    """Run the Pair Data Science process"""
     conf = Config()
 
     def __init__(self, group_id):
+        """Initialize a Pair Data Science pairing system"""
         self.group_id = group_id
         self.users = set ([])
         self.user_photos = {}
+        ## Survey data filename is exclusively for SurveyMonkey text
         self.survey_data_filename = "c:/users/aaron/desktop/survey_data.txt"
+        ## Survey api survey id is exclusively for the SurveyMonkey API
         self.survey_api_survey_id = u"67951656"
         self.meetup_client = meetup.Meetup(conf.meetup_api_key)
         self.message_client = Message()
         self.aaron_matches = False
 
     def get_weekly_opt_ins(self):
+        """Grab list interested in matching this week from Meetup event API"""
         arg_dict = {}
         arg_dict["group_id"] = self.group_id
 
@@ -61,6 +68,7 @@ class Main:
         return opt_ins
 
     def get_users_parser(self,parser_type,survey_unique_identifier):
+        """Use parser to grab data from relevant source"""
         parser = parser_type(survey_unique_identifier)
         if not parser.parse():
             return None
@@ -100,7 +108,7 @@ class Main:
         return users
 
     def get_users(self):
-        ## Read in the survey data or simulate new data
+        """Read in the survey data or simulate new data"""
         self.users = self.get_users_parser(APIParser, self.survey_api_survey_id)
         print self.users
         if self.users is None:
@@ -122,6 +130,7 @@ class Main:
 
 
     def analyze_pairs(self):
+        """Match pairs of users"""
         # Analyze pairs
         ## GeogMatcher is a very basic algorithm that only makes use of geography
         ## TODO: Update algorithm to incorporate more than geography
@@ -133,6 +142,7 @@ class Main:
     
 
     def send_missing_survey_messages(self,debug=True):
+        """Send message to users that haven't taken survey yet"""
         msg_no_name = Text(self.group_id).take_survey
 
         opt_ins = self.get_weekly_opt_ins()
@@ -149,6 +159,7 @@ class Main:
                     print msg
 
     def send_pair_assignment_messages(self,finish_date,pairs,debug=True):
+        """Send message to pairs of users alerting them to their pairings"""
         msg_no_names = Text(self.group_id).assign_pair
         if raw_input('Continue Sending Messages - T or F : ') != "T":
             return
@@ -167,7 +178,6 @@ class Main:
 
 if __name__ == "__main__":
     spam_missing_surveys = False
-
 
     for group_id in Config.groups:
         main = Main(group_id)

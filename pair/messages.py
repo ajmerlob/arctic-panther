@@ -1,3 +1,5 @@
+__author__="Calvin"
+
 import requests
 from bs4 import BeautifulSoup as soup
 import random
@@ -5,6 +7,7 @@ import os
 from core.config import Config
 
 class Message:
+    """Send messages through the Meetup interface"""
 
     endpoint = 'https://secure.meetup.com'
     authEndpoint = 'login'
@@ -16,7 +19,6 @@ class Message:
     userAgents = ['Mozilla/5.0 (Windows NT 6.1; WOW64; rv:36.0) Gecko/20100101 Firefox/36.0', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3 Safari/600.3.18', 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.89 Safari/537.36']
     userAgent = False
 
-    #authFile should be a file where your username and password are stored, separated by a newline
     def __init__(self):
         conf = Config()
         if conf.meetup_message_username == "" or conf.meetup_message_password == "":
